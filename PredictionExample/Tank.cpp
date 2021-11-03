@@ -78,9 +78,9 @@ sf::Vector2f Tank::RunPrediction(float gameTime)
 		return sf::Vector2f( predictedX, predictedX );
 	}
 
-	const TankMessage& msg0 = m_Messages[msize - 1];
+	const TankMessage& msg0 = m_Messages[msize - 1];		// Latest msg
 	const TankMessage& msg1 = m_Messages[msize - 2];
-	const TankMessage& msg2 = m_Messages[msize - 3];
+	const TankMessage& msg2 = m_Messages[msize - 3];		// Oldest msg
 	
 	// FIXME: Implement prediction here!
 	// You have:
@@ -92,8 +92,20 @@ sf::Vector2f Tank::RunPrediction(float gameTime)
 	// - the predicted position at the current time, in "predictedX" and "predictedY"
 
 	// NO MODEL TASK
-	predictedX = msg0.x;
-	predictedY = msg0.y;
+	/*predictedX = msg0.x;
+	predictedY = msg0.y;*/
+
+	// LINEAR MODEL TASK (VEL ONLY) using s = vt
+	sf::Vector2f prevPrevPos = sf::Vector2f(msg1.x, msg1.y);
+	sf::Vector2f prevPos = sf::Vector2f(msg0.x, msg0.y);
+	sf::Vector2f distanceVec = prevPos - prevPrevPos;
+	float dist = std::hypot(distanceVec.x, distanceVec.y);
+	float deltaTime = msg0.time - msg1.time;
+	float speed = dist / deltaTime;
+	float displacement = speed * (gameTime - msg0.time);
+	sf::Vector2f nexPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);
+	predictedX = nexPos.x;
+	predictedY = nexPos.y;
 		
 	return sf::Vector2f( predictedX, predictedY );
 }

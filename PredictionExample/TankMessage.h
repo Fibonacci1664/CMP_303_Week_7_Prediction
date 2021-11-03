@@ -1,6 +1,8 @@
 #pragma once
 /** A position update message. */
-struct TankMessage {
+
+struct TankMessage
+{
 	/** The object number of this tank within the game world. */
 	int id;
 

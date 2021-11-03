@@ -54,7 +54,6 @@ void NetworkSimulator::Update(float dt)
 		m_SentX += (m_SentVX * m_SendRate);
 		m_SentY += (m_SentVY * m_SendRate);
 	}
-
 }
 
 void NetworkSimulator::SetLatency(float latency)
@@ -67,7 +66,8 @@ void NetworkSimulator::SetSendRate(float sendRate)
 	m_SendRate = sendRate;
 }
 
-void NetworkSimulator::Reset() {
+void NetworkSimulator::Reset()
+{
 	m_Time = 0.0f;
 	m_SentTime = 0.0f;
 	m_SentX = 0.0f;

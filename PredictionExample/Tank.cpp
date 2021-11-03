@@ -28,6 +28,7 @@ void Tank::Update(float dt)
 {
 	if (m_Messages.size() < 1)
 		return;
+
 	TankMessage latestMessage = m_Messages.back();
 	setPosition( latestMessage.x, latestMessage.y );
 }
@@ -89,6 +90,10 @@ sf::Vector2f Tank::RunPrediction(float gameTime)
 	//
 	// You need to update:
 	// - the predicted position at the current time, in "predictedX" and "predictedY"
+
+	// NO MODEL TASK
+	predictedX = msg0.x;
+	predictedY = msg0.y;
 		
 	return sf::Vector2f( predictedX, predictedY );
 }

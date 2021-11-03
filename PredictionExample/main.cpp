@@ -48,14 +48,14 @@ int main()
 	//Clock for timing the 'dt' value
 	sf::Clock clock;
 	float sendRate	= 0.5f;
-	float latency	= 0.3f;
+	float latency	= 0.3f;		// Simulated latency
 	float gameSpeed = 1.0f;
 	float startTime = sendRate * 3.0f;
 
 	//When are we next printing the predicted position (so we don't spam the console)
 	float nextPrint = startTime;
 
-	//Create a network simulator with that "sends" a message every 0.5 seconds and has a latency of 0.1 seconds
+	//Create a network simulator with that "sends" a message every 0.5 seconds and has a latency of 0.3 seconds
 	NetworkSimulator netSimulator(sendRate, latency);
 	netSimulator.m_MyID = 0;	//On the network, we are Tank 0
 	
@@ -78,7 +78,8 @@ int main()
 
 				if(event.key.code == sf::Keyboard::Key::R)
 				{
-					tanks[0].Reset(); tanks[1].Reset();
+					tanks[0].Reset();
+					tanks[1].Reset();
 					netSimulator.Reset();
 					nextPrint = startTime;
 					printf( "\n\n--------RESET--------\n\n" );
@@ -86,7 +87,7 @@ int main()
 			}
 		}
 
-		//If we're at the start, just advance the time by 3.5 seconds, so we have a few packets in the queue already
+		//If we're at the start, just advance the time by 1.5 seconds, so we have a few packets in the queue already
 		if( netSimulator.Time() < 1.0f )
 		{
 			printf( "BEGIN SIMULATION\n" );
@@ -99,6 +100,7 @@ int main()
 
 			//Update the network simulation
 			netSimulator.Update(dt);
+
 			//Get any 'network' messages that are available
 			while (netSimulator.ReceiveMessage(msg))
 			{
@@ -110,7 +112,8 @@ int main()
 			for( int i = 0; i < sizeof( tanks ) / sizeof( Tank ); i++ )
 			{
 				tanks[i].Update( dt );	//Update the real position of the tank with the info from the latest packet
-				if( i != netSimulator.m_MyID )
+
+				if(i != netSimulator.m_MyID)
 				{
 					//Get the predicted position of the tank at the current Game Time and move the ghost to that position
 					tanks[i].setGhostPosition( tanks[i].RunPrediction( netSimulator.Time() ) );

@@ -96,17 +96,39 @@ sf::Vector2f Tank::RunPrediction(float gameTime)
 	predictedY = msg0.y;*/
 
 	// LINEAR MODEL TASK (VEL ONLY) using s = vt
-	sf::Vector2f prevPrevPos = sf::Vector2f(msg1.x, msg1.y);
+	/*sf::Vector2f prevPrevPos = sf::Vector2f(msg1.x, msg1.y);
 	sf::Vector2f prevPos = sf::Vector2f(msg0.x, msg0.y);
 	sf::Vector2f distanceVec = prevPos - prevPrevPos;
 	float dist = std::hypot(distanceVec.x, distanceVec.y);
 	float deltaTime = msg0.time - msg1.time;
 	float speed = dist / deltaTime;
 	float displacement = speed * (gameTime - msg0.time);
-	sf::Vector2f nexPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);
-	predictedX = nexPos.x;
-	predictedY = nexPos.y;
-		
+	sf::Vector2f nextPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);
+	predictedX = nextPos.x;
+	predictedY = nextPos.y;*/
+
+	// QUADRACTIC MODEL TASK (USING ACC AND VEL) using s = ut + 0.5 * at^2
+	sf::Vector2f prevPrevPrevPos = sf::Vector2f(msg2.x, msg2.y);
+	sf::Vector2f prevPrevPos = sf::Vector2f(msg1.x, msg1.y);
+	sf::Vector2f prevPos = sf::Vector2f(msg0.x, msg0.y);
+	sf::Vector2f prevDistanceVec = prevPos - prevPrevPos;
+	sf::Vector2f prevPrevDistanceVec = prevPrevPos - prevPrevPrevPos;
+	float prevDist = std::hypot(prevDistanceVec.x, prevDistanceVec.y);
+	float prevPrevDist = std::hypot(prevPrevDistanceVec.x, prevPrevDistanceVec.y);
+	float prevDeltaTime = msg0.time - msg1.time;
+	float prevPrevDeltaTime = msg1.time - msg2.time;
+	float prevSpeed = prevDist / prevDeltaTime;
+	float prevPrevSpeed = prevPrevDist / prevPrevDeltaTime;
+	float deltaSpeed = prevSpeed - prevPrevSpeed;
+	float deltaTime = prevDeltaTime - prevPrevDeltaTime;
+	float accel = deltaSpeed / deltaTime;
+	float displacement = prevSpeed * (gameTime - msg0.time) + 0.5f * accel * pow((gameTime - msg0.time), 2);
+	sf::Vector2f nextPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);
+	predictedX = nextPos.x;
+	predictedY = nextPos.y;
+
+
+
 	return sf::Vector2f( predictedX, predictedY );
 }
 

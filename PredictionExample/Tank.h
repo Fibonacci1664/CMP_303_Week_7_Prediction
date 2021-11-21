@@ -21,6 +21,8 @@ public:
 	void AddMessage(const TankMessage& msg);
 	sf::Vector2f RunPrediction(float gameTime);
 
+	sf::Vector2f linear(float gameTime, const TankMessage& msg0, const TankMessage& msg1, const TankMessage& msg2);
+	sf::Vector2f quadratic(float gameTime, const TankMessage& msg0, const TankMessage& msg1, const TankMessage& msg2);
 	void SetRenderMode(const RenderMode renderMode) { m_RenderMode = renderMode; }
 	void setPosition( float x, float y );
 	void setGhostPosition( sf::Vector2f pos );
@@ -38,5 +40,6 @@ private:
 	RenderMode	m_RenderMode = RenderMode::REAL_AND_PREDICTED;
 
 	std::vector<TankMessage> m_Messages;
+	std::vector<TankMessage> preditedPosHistory;
 };
 

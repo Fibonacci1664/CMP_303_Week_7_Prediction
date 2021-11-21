@@ -48,7 +48,7 @@ int main()
 	//Clock for timing the 'dt' value
 	sf::Clock clock;
 	float sendRate	= 0.5f;
-	float latency	= 0.3f;		// Simulated latency
+	float latency	= 0.8f;		// Simulated latency
 	float gameSpeed = 1.0f;
 	float startTime = sendRate * 3.0f;
 
@@ -94,7 +94,7 @@ int main()
 			netSimulator.Update(startTime);
 		}
 
-		if (netSimulator.Time() < 12.0f)
+		if (netSimulator.Time() < 30.0f)
 		{
 			TankMessage msg;
 
@@ -104,7 +104,7 @@ int main()
 			//Get any 'network' messages that are available
 			while (netSimulator.ReceiveMessage(msg))
 			{
-				printf("Received message: ID= %d, Pos = (%.2f, %.2f), Time =%.2f\n", msg.id, msg.x, msg.y, msg.time);
+				printf("Received message: ID = %d, Pos = (%.2f, %.2f), Time = %.2f\n", msg.id, msg.x, msg.y, msg.time);
 				tanks[msg.id].AddMessage(msg);
 			}
 
@@ -122,7 +122,7 @@ int main()
 					{
 						//Get the predicted position of the tank at a specific interval and print it to the console
 						sf::Vector2f predictedPosition = tanks[i].RunPrediction( nextPrint );
-						printf( "\tPredicted positiion:  (%.2f, %.2f), Time =%.2f\n", predictedPosition.x, predictedPosition.y, nextPrint );
+						printf( "\tPredicted positiion:  (%.2f, %.2f), Time = %.2f\n", predictedPosition.x, predictedPosition.y, nextPrint );
 						nextPrint = nextPrint + (sendRate * 0.25f);	//Print 4 times per packet
 					}
 				}

@@ -18,7 +18,7 @@ NetworkSimulator::~NetworkSimulator()
 {
 }
 
-bool NetworkSimulator::ReceiveMessage(TankMessage & result)
+bool NetworkSimulator::ReceiveMessage(TankMessage& result)
 {
 	if (m_MessageQueue.empty())
 	{
@@ -45,10 +45,25 @@ void NetworkSimulator::Update(float dt)
 		m_SentTime += m_SendRate;
 
 		// Change the path of the tank after a while.
-		if (m_SentTime >= 12.77f)
+		if (m_SentTime >= 10.0f)
 		{
-			m_SentVX = 25.0f;
+			m_SentVX = 15.0f;
 			m_SentVY = -10.0f;
+		}
+		if (m_SentTime >= 15.0f)
+		{
+			m_SentVX = -15.0f;
+			m_SentVY = -10.0f;
+		}
+		if (m_SentTime >= 20.0f)
+		{
+			m_SentVX = -15.0f;
+			m_SentVY = 10.0f;
+		}
+		if (m_SentTime >= 25.0f)
+		{
+			m_SentVX = 15.0f;
+			m_SentVY = 10.0f;
 		}
 
 		m_SentX += (m_SentVX * m_SendRate);

@@ -59,7 +59,7 @@ const void Tank::Render(sf::RenderWindow * window)
 }
 
 //Add a message to the tank's network message queue
-void Tank::AddMessage(const TankMessage & msg)
+void Tank::AddMessage(const TankMessage& msg)
 {
 	m_Messages.push_back(msg);
 }
@@ -95,7 +95,52 @@ sf::Vector2f Tank::RunPrediction(float gameTime)
 	/*predictedX = msg0.x;
 	predictedY = msg0.y;*/
 
+	sf::Vector2f predictedVec = linear(gameTime, msg0, msg1, msg2);
+	//sf::Vector2f predictedVec = quadratic(gameTime, msg0, msg1, msg2);
+
+	predictedX = predictedVec.x;
+	predictedY = predictedVec.y;
+
+	return sf::Vector2f( predictedX, predictedY );
+}
+
+sf::Vector2f Tank::linear(float gameTime, const TankMessage& msg0, const TankMessage& msg1, const TankMessage& msg2)
+{
+	float predictedX = -1.0f;
+	float predictedY = -1.0f;
+
 	// LINEAR MODEL TASK (VEL ONLY) using s = vt
+	sf::Vector2f deltaPos = sf::Vector2f(msg0.x - msg1.x, msg0.y - msg1.y);
+	float deltaTime = msg0.time - msg1.time;
+	// |v| = sqrt(a^2 + b^2)
+	//float distance = sqrt(pow(deltaPos.x, 2) + pow(deltaPos.y, 2));
+	sf::Vector2f speed = sf::Vector2f((deltaPos.x / deltaTime), (deltaPos.y / deltaTime));
+	//float speed = distance / deltaTime;
+	sf::Vector2f displacement = speed * (gameTime - msg0.time);
+
+	//sf::Vector2f nextPos = sf::Vector2f(0.0f, 0.0f);
+	sf::Vector2f nextPos = sf::Vector2f(msg0.x + displacement.x, msg0.y + displacement.y);
+
+	//// If we are moving negatively in the x direction, subtract the displacement value
+	//if (deltaPos.x <= 0)
+	//{
+	//	nextPos.x = msg0.x - displacement;
+	//}
+	//else
+	//{
+	//	nextPos.x = msg0.x + displacement;
+	//}
+
+	//// If we are moving negatively in the y direction, i.e up, subtract the displacement value
+	//if (deltaPos.y <= 0)
+	//{
+	//	nextPos.y = msg0.y - displacement;
+	//}
+	//else
+	//{
+	//	nextPos.y = msg0.y + displacement;
+	//}
+
 	/*sf::Vector2f prevPrevPos = sf::Vector2f(msg1.x, msg1.y);
 	sf::Vector2f prevPos = sf::Vector2f(msg0.x, msg0.y);
 	sf::Vector2f distanceVec = prevPos - prevPrevPos;
@@ -103,33 +148,34 @@ sf::Vector2f Tank::RunPrediction(float gameTime)
 	float deltaTime = msg0.time - msg1.time;
 	float speed = dist / deltaTime;
 	float displacement = speed * (gameTime - msg0.time);
-	sf::Vector2f nextPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);
+	sf::Vector2f nextPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);*/
+
 	predictedX = nextPos.x;
-	predictedY = nextPos.y;*/
+	predictedY = nextPos.y;
+
+	return sf::Vector2f(predictedX, predictedY);
+}
+
+sf::Vector2f Tank::quadratic(float gameTime, const TankMessage& msg0, const TankMessage& msg1, const TankMessage& msg2)
+{
+	float predictedX = -1.0f;
+	float predictedY = -1.0f;
 
 	// QUADRACTIC MODEL TASK (USING ACC AND VEL) using s = ut + 0.5 * at^2
-	sf::Vector2f prevPrevPrevPos = sf::Vector2f(msg2.x, msg2.y);
-	sf::Vector2f prevPrevPos = sf::Vector2f(msg1.x, msg1.y);
-	sf::Vector2f prevPos = sf::Vector2f(msg0.x, msg0.y);
-	sf::Vector2f prevDistanceVec = prevPos - prevPrevPos;
-	sf::Vector2f prevPrevDistanceVec = prevPrevPos - prevPrevPrevPos;
-	float prevDist = std::hypot(prevDistanceVec.x, prevDistanceVec.y);
-	float prevPrevDist = std::hypot(prevPrevDistanceVec.x, prevPrevDistanceVec.y);
 	float prevDeltaTime = msg0.time - msg1.time;
 	float prevPrevDeltaTime = msg1.time - msg2.time;
-	float prevSpeed = prevDist / prevDeltaTime;
-	float prevPrevSpeed = prevPrevDist / prevPrevDeltaTime;
+	sf::Vector2f changeInXY_Prev = sf::Vector2f((msg0.x - msg1.x), (msg0.y - msg1.y));
+	sf::Vector2f changeInXY_PrevPrev = sf::Vector2f((msg1.x - msg2.x), (msg1.y - msg2.y));
+	float prevSpeed = abs(changeInXY_Prev.x - changeInXY_Prev.y) / prevDeltaTime;
+	float prevPrevSpeed = abs(changeInXY_PrevPrev.x - changeInXY_PrevPrev.y) / prevPrevDeltaTime;
 	float deltaSpeed = prevSpeed - prevPrevSpeed;
-	float deltaTime = prevDeltaTime - prevPrevDeltaTime;
-	float accel = deltaSpeed / deltaTime;
-	float displacement = prevSpeed * (gameTime - msg0.time) + 0.5f * accel * pow((gameTime - msg0.time), 2);
+	float accel = deltaSpeed / prevDeltaTime;
+	float displacement = prevSpeed * (gameTime - msg0.time) + 0.5f * accel * pow(gameTime, 2);
 	sf::Vector2f nextPos = sf::Vector2f(msg0.x + displacement, msg0.y + displacement);
 	predictedX = nextPos.x;
 	predictedY = nextPos.y;
 
-
-
-	return sf::Vector2f( predictedX, predictedY );
+	return sf::Vector2f(predictedX, predictedY);
 }
 
 void Tank::Reset()
